@@ -6,11 +6,11 @@ const _useCrudQuery = () => {
   const generateItemsQuery = (currentModule) => {
     const fields = currentModule.fields.filter(field => field.display?.listing || field.fetch?.listing)
     return gql`
-      query ${upperKeyName(currentModule.id)} {
-        items: ${currentModule.id} {
+      query ${upperKeyName(currentModule.id)}($queryInput: QueryInput) {
+        items: ${currentModule.id}(queryInput: $queryInput) {
           ${fields.map(field => field.key).join(' ')}
         }
-        nItems: n${currentModule.id} {
+        nItems: n${currentModule.id}(queryInput: $queryInput) {
           count
         }
       }

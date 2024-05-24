@@ -5,9 +5,10 @@ const { generateItemsQuery } = useCrudQuery()
 export const useGetItems = (currentModule) => {
   const { clients } = useApollo()
   const contentLang = useState('contentLang');
+  const enabled = ref(false);
 
   const { result, loading, error, variables, refetch } = provideApolloClient(clients.default)(() =>
-    useQuery(generateItemsQuery(currentModule.value), undefined, { enabled: true, context: {headers: { language: contentLang.value}}})
+    useQuery(generateItemsQuery(currentModule.value), { queryInput: {} }, { enabled, context: {headers: { language: contentLang.value}}})
   );
 
   return {
@@ -16,5 +17,6 @@ export const useGetItems = (currentModule) => {
     error,
     variables,
     refetch,
+    enabled
   }
 }
