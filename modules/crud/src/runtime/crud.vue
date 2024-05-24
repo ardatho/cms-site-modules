@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
-  middleware: ["crud"]
+  middleware: ["crud"],
+  layout: false,
 })
 
 const currentModule = useState('currentModule')
@@ -39,38 +40,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="!currentModule">
-    Loading
-  </div>
-  <div v-else>
-    <UDashboardPage>
-      <UDashboardPanel grow>
-        <UDashboardNavbar>
-          <template #toggle>
-            <div />
-          </template>
-          <template #left>
-            <UBreadcrumb :links="breadCrumbs">
-              <template #default="{ link }">
-                {{ $t(link.label) }}
-              </template>
-            </UBreadcrumb>
-          </template>
-          <template #right>
-            <UDropdown v-if="displayLang" :items="itemsLang" :popper="{ placement: 'bottom-start' }">
-              <UButton color="white" :label="$t(`contentLang.${contentLang}`)" trailing-icon="i-heroicons-chevron-down-20-solid" />
-              <template #en="{ item }">
-                {{ $t(item.label) }}
-              </template>
-              <template #fr="{ item }">
-                {{ $t(item.label) }}
-              </template>
-            </UDropdown>
-          </template>
-        </UDashboardNavbar>
+  <NuxtLayout name="default">
+    <template #header>
+      <UDashboardToolbar>
+        <template #toggle>
+          <div />
+        </template>
+        <template #left>
+          <UBreadcrumb :links="breadCrumbs">
+            <template #default="{ link }">
+              {{ $t(link.label) }}
+            </template>
+          </UBreadcrumb>
+        </template>
+        <template #right>
+          <UDropdown v-if="displayLang" :items="itemsLang" :popper="{ placement: 'bottom-start' }">
+            <UButton color="white" :label="$t(`contentLang.${contentLang}`)" trailing-icon="i-heroicons-chevron-down-20-solid" />
+            <template #en="{ item }">
+              {{ $t(item.label) }}
+            </template>
+            <template #fr="{ item }">
+              {{ $t(item.label) }}
+            </template>
+          </UDropdown>
+        </template>
+      </UDashboardToolbar>
+    </template>
 
-        <NuxtPage />
-      </UDashboardPanel>
-    </UDashboardPage>
-  </div>
+    <div v-if="!currentModule">
+      Loading
+    </div>
+    <div v-else>
+      <NuxtPage />
+    </div>
+  </NuxtLayout>
 </template>

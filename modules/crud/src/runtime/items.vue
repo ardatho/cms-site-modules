@@ -86,141 +86,137 @@ enabled.value = true;
 </script>
 
 <template>
-  <UDashboardPage>
-    <UDashboardPanel grow>
-      <UDashboardToolbar>
-        <template #left>
-          <USelectMenu
-            v-model="selectedStatuses"
-            icon="i-heroicons-check-circle"
-            placeholder="Status"
-            multiple
-            :options="defaultStatuses"
-            :ui-menu="{ option: { base: 'capitalize' } }"
-          />
-          <!-- <USelectMenu
-            v-model="selectedLocations"
-            icon="i-heroicons-map-pin"
-            placeholder="Location"
-            :options="defaultLocations"
-            multiple
-          /> -->
+  <UDashboardToolbar>
+    <template #left>
+      <USelectMenu
+        v-model="selectedStatuses"
+        icon="i-heroicons-check-circle"
+        placeholder="Status"
+        multiple
+        :options="defaultStatuses"
+        :ui-menu="{ option: { base: 'capitalize' } }"
+      />
+      <!-- <USelectMenu
+        v-model="selectedLocations"
+        icon="i-heroicons-map-pin"
+        placeholder="Location"
+        :options="defaultLocations"
+        multiple
+      /> -->
+    </template>
+
+    <template #right>
+      <UInput
+        ref="input"
+        v-model.lazy="searchString"
+        icon="i-heroicons-funnel"
+        autocomplete="off"
+        placeholder="Filter items..."
+        class="hidden lg:block"
+        @keydown.esc="$event.target.blur()"
+      >
+        <template #trailing>
+          <UKbd value="/" />
         </template>
+      </UInput>
 
-        <template #right>
-          <UInput
-            ref="input"
-            v-model.lazy="searchString"
-            icon="i-heroicons-funnel"
-            autocomplete="off"
-            placeholder="Filter items..."
-            class="hidden lg:block"
-            @keydown.esc="$event.target.blur()"
-          >
-            <template #trailing>
-              <UKbd value="/" />
-            </template>
-          </UInput>
-
-          <USelectMenu v-model="selectedColumns" icon="i-heroicons-adjustments-horizontal-solid" :options="defaultColumns" multiple class="hidden lg:block">
-            <template #label>
-              Display
-            </template>
-          </USelectMenu>
-
-          <UButton :label="$t('ui.add') + ' ' + $t(currentModule.verbose_label_singular)" trailing-icon="i-heroicons-plus" color="gray" :to="`/${currentModule.id}/add`" />
+      <USelectMenu v-model="selectedColumns" icon="i-heroicons-adjustments-horizontal-solid" :options="defaultColumns" multiple class="hidden lg:block">
+        <template #label>
+          Display
         </template>
-      </UDashboardToolbar>
+      </USelectMenu>
 
-      <div>
-        <UTable
-          v-model="selected"
-          v-model:sort="sort"
-          :rows="items"
-          :columns="columns"
-          :loading="loading"
-          sort-mode="manual"
-          class="w-full"
-          :ui="{ wrapper: 'overflow-y-auto h-1/2', divide: 'divide-gray-200 dark:divide-gray-800', thead: 'sticky', tbody: 'h-52' }"
-          @select="onSelect"
-        >
-          <template
-            v-for="columnOption in columns"
-            #[getColumnSlotName(columnOption)]="{ column }"
-          >
-            {{ $t(column.label) }}
-          </template>
+      <UButton :label="$t('ui.add') + ' ' + $t(currentModule.verbose_label_singular)" trailing-icon="i-heroicons-plus" color="gray" :to="`/${currentModule.id}/add`" />
+    </template>
+  </UDashboardToolbar>
 
-          <template #name-data="{ row }">
-            <div class="flex items-center gap-3">
-              <UAvatar v-bind="row.avatar" :alt="row.name" size="xs" />
+  <div>
+    <UTable
+      v-model="selected"
+      v-model:sort="sort"
+      :rows="items"
+      :columns="columns"
+      :loading="loading"
+      sort-mode="manual"
+      class="w-full"
+      :ui="{ wrapper: 'overflow-y-auto h-1/2', divide: 'divide-gray-200 dark:divide-gray-800', thead: 'sticky', tbody: 'h-52' }"
+      @select="onSelect"
+    >
+      <template
+        v-for="columnOption in columns"
+        #[getColumnSlotName(columnOption)]="{ column }"
+      >
+        {{ $t(column.label) }}
+      </template>
 
-              <span class="text-gray-900 dark:text-white font-medium">{{ row.name }}</span>
-            </div>
-          </template>
+      <template #name-data="{ row }">
+        <div class="flex items-center gap-3">
+          <UAvatar v-bind="row.avatar" :alt="row.name" size="xs" />
 
-          <template #created_at-data="{ row }">
-            {{ row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }}
-          </template>
+          <span class="text-gray-900 dark:text-white font-medium">{{ row.name }}</span>
+        </div>
+      </template>
 
-          <template #status-data="{ row }">
-            <UBadge :label="statuses[row.status]" :color="row.status === 1 ? 'green' : row.status === 2 ? 'orange' : 'red'" variant="subtle" class="capitalize" />
-          </template>
-          <template #actions-data="{ row }">
-            <UButton
-              icon="i-heroicons-pencil"
-              size="xs"
-              variant="ghost"
-              :to="`${$route.path}/${row.id}/edit`"
-            />
-            <UButton
-              icon="i-heroicons-trash"
-              variant="ghost"
-              size="xs"
-              @click.stop="deleteItem({id: row.id})"
-            />
-            <UButton
-              icon="i-heroicons-document-duplicate"
-              variant="ghost"
-              size="xs"
-            />
-          </template>
-        </UTable>
+      <template #created_at-data="{ row }">
+        {{ row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }}
+      </template>
+
+      <template #status-data="{ row }">
+        <UBadge :label="statuses[row.status]" :color="row.status === 1 ? 'green' : row.status === 2 ? 'orange' : 'red'" variant="subtle" class="capitalize" />
+      </template>
+      <template #actions-data="{ row }">
+        <UButton
+          icon="i-heroicons-pencil"
+          size="xs"
+          variant="ghost"
+          :to="`${$route.path}/${row.id}/edit`"
+        />
+        <UButton
+          icon="i-heroicons-trash"
+          variant="ghost"
+          size="xs"
+          @click.stop="deleteItem({id: row.id})"
+        />
+        <UButton
+          icon="i-heroicons-document-duplicate"
+          variant="ghost"
+          size="xs"
+        />
+      </template>
+    </UTable>
+  </div>
+
+  <UFooter>
+    <template #center>
+      <div class="flex flex-wrap justify-between items-center">
+        <span class="text-sm leading-5 pl-4">
+          {{ $t('generic.rows_per_page') }}
+        </span>
+
+        <USelectMenu class="pl-4" v-model="pageCount" :options="rowPerPages" />
+
+        <span class="text-sm leading-5 pl-4">
+          <span class="font-medium">{{ pageFrom }}</span>-<span class="font-medium">{{ pageTo }}</span>
+          of
+          <span class="font-medium">{{ pageTotal }}</span>
+        </span>
+
+        <UPagination
+          v-model="page"
+          :page-count="pageCount"
+          :total="pageTotal"
+          :ui="{
+            wrapper: 'flex items-center gap-1 pl-4',
+            rounded: '!rounded-full min-w-[32px] justify-center',
+            default: {
+              activeButton: {
+                variant: 'outline'
+              }
+            }
+          }"
+        />
       </div>
 
-      <UFooter>
-        <template #center>
-          <div class="flex flex-wrap justify-between items-center">
-            <span class="text-sm leading-5 pl-4">
-              {{ $t('generic.rows_per_page') }}
-            </span>
-
-            <USelectMenu class="pl-4" v-model="pageCount" :options="rowPerPages" />
-
-            <span class="text-sm leading-5 pl-4">
-              <span class="font-medium">{{ pageFrom }}</span>-<span class="font-medium">{{ pageTo }}</span>
-              of
-              <span class="font-medium">{{ pageTotal }}</span>
-            </span>
-
-            <UPagination
-              v-model="page"
-              :page-count="pageCount"
-              :total="pageTotal"
-              :ui="{
-                wrapper: 'flex items-center gap-1 pl-4',
-                rounded: '!rounded-full min-w-[32px] justify-center',
-                default: {
-                  activeButton: {
-                    variant: 'outline'
-                  }
-                }
-              }"
-            />
-          </div>
-
-        </template>
-      </UFooter>
-    </UDashboardPanel>
-  </UDashboardPage>
+    </template>
+  </UFooter>
 </template>

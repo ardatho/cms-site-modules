@@ -159,7 +159,10 @@ await fetchCurrentUser()
             </UDropdown> -->
           </template>
         </UDashboardNavbar>
-        <slot />
+        <slot name="header" />
+        <UDashboardPanelContent>
+          <slot />
+        </UDashboardPanelContent>
       </UDashboardPanel>
     </UDashboardPage>
 
