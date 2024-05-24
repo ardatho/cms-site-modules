@@ -1,45 +1,41 @@
 import { createSharedComposable } from '@vueuse/core'
 
 const _useCrudQuery = () => {
+  const upperKeyName = (key: string) => key.charAt(0).toUpperCase() + key.slice(1);
 
-  const generateItemsQuery = () => {
-    const currentModule = useState('currentModule');
-
-    const fields = currentModule.value.fields.filter(field => field.display?.listing || field.fetch?.listing)
+  const generateItemsQuery = (currentModule) => {
+    const fields = currentModule.fields.filter(field => field.display?.listing || field.fetch?.listing)
     return gql`
-      query Query {
-        items: ${currentModule.value.id} {
+      query ${upperKeyName(currentModule.id)} {
+        items: ${currentModule.id} {
           ${fields.map(field => field.key).join(' ')}
         }
-        nItems: n${currentModule.value.id} {
+        nItems: n${currentModule.id} {
           count
         }
       }
     `
   }
 
-  const generateItemQuery = () => {
-    const currentModule = useState('currentModule');
+  const generateItemQuery = (currentModule) => {
 
-    const fields = currentModule.value.fields.filter(field => field.display?.edit || field.fetch?.edit || false);
+    const fields = currentModule.fields.filter(field => field.display?.edit || field.fetch?.edit || false);
 
     return gql`
-      query Query($id: Int!) {
-        item: ${currentModule.value.idSingular}(id: $id) {
+      query ${upperKeyName(currentModule.idSingular)}($id: Int!) {
+        item: ${currentModule.idSingular}(id: $id) {
           ${fields.map(field => field.key).join(' ')}
         }
       }
     `
   }
 
-  const generateItemPatch = () => {
-    const currentModule = useState('currentModule');
-
-    const fields = currentModule.value.fields.filter(field => field.display?.edit || field.fetch?.edit || false);
-    const keyModule = currentModule.value.idSingular.charAt(0).toUpperCase() + currentModule.value.idSingular.slice(1);
+  const generateItemPatch = (currentModule) => {
+    const fields = currentModule.fields.filter(field => field.display?.edit || field.fetch?.edit || false);
+    const keyModule = upperKeyName(currentModule.idSingular);
 
     const operation = `
-      mutation Mutation($id: Int!, $patch: ${keyModule}Patch! ) {
+      mutation Patch${keyModule}($id: Int!, $patch: ${keyModule}Patch! ) {
         item: patch${keyModule}(id: $id, patch: $patch) {
           ${fields.map(field => field.key).join(' ')}
         }
@@ -48,24 +44,20 @@ const _useCrudQuery = () => {
     return gql(operation)
   }
 
-  const generateItemDelete = () => {
-    const currentModule = useState('currentModule');
-
-    const keyModule = currentModule.value.idSingular.charAt(0).toUpperCase() + currentModule.value.idSingular.slice(1);
+  const generateItemDelete = (currentModule) => {
+    const keyModule = upperKeyName(currentModule.idSingular);
 
     const operation = `
-      mutation Mutation($id: Int!) {
+      mutation Delete${keyModule}($id: Int!) {
         deleted: delete${keyModule}(id: $id)
       }
     `
     return gql(operation)
   }
 
-  const generateItemAdd = () => {
-    const currentModule = useState('currentModule');
-
-    const fields = currentModule.value.fields.filter(field => field.display?.edit || field.fetch?.edit || false);
-    const keyModule = currentModule.value.idSingular.charAt(0).toUpperCase() + currentModule.value.idSingular.slice(1);
+  const generateItemAdd = (currentModule) => {
+    const fields = currentModule.fields.filter(field => field.display?.edit || field.fetch?.edit || false);
+    const keyModule = currentModule.idSingular.charAt(0).toUpperCase() + currentModule.idSingular.slice(1);
 
     const operation = `
       mutation Mutation($item: ${keyModule}Add! ) {

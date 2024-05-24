@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const route = useRoute()
-const appConfig = useAppConfig()
 const { isHelpSlideoverOpen, isNotificationsSlideoverOpen } = useDashboard()
 const { fetchCurrentUser } = useAuth()
 // definePageMeta({
@@ -172,5 +171,7 @@ await fetchCurrentUser()
     <ClientOnly>
       <LazyUDashboardSearch :groups="groups" />
     </ClientOnly>
+
+    <UNotifications />
   </UDashboardLayout>
 </template>

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { User } from '~/types'
 
-const { items, nItems, loading, getItems } = useItems()
-const { deleteItem } = useItem()
 const route = useRoute()
 const router = useRouter()
 const currentModule = useState('currentModule')
-const { t } = useI18n()
+
+const { result, loading } = useGetItems(currentModule)
+const { mutate: deleteItem } = useDeleteItem(currentModule)
 
 const defaultColumns = currentModule.value.fields
   .filter(field => field.display?.listing)
@@ -20,20 +20,19 @@ const q = ref('')
 const selected = ref<User[]>([])
 const selectedColumns = ref(defaultColumns)
 const selectedStatuses = ref([])
-const selectedLocations = ref([])
 const sort = ref({ column: 'id', direction: 'asc' as const })
 const input = ref<{ input: HTMLInputElement }>()
 
 const columns = computed(() => defaultColumns.filter((column) => selectedColumns.value.includes(column)))
 
-const defaultLocations = items.value.reduce((acc, user) => {
-  if (!acc.includes(user.location)) {
-    acc.push(user.location)
-  }
-  return acc
-}, [] as string[])
+// const defaultLocations = items.value.reduce((acc, user) => {
+//   if (!acc.includes(user.location)) {
+//     acc.push(user.location)
+//   }
+//   return acc
+// }, [] as string[])
 
-const defaultStatuses = items.value.reduce((acc, user) => {
+const defaultStatuses = result?.value?.items.reduce((acc, user) => {
   if (!acc.includes(user.status)) {
     acc.push(user.status)
   }
@@ -41,14 +40,7 @@ const defaultStatuses = items.value.reduce((acc, user) => {
 }, [] as string[])
 
 const onSelect = async (row: any) => {
-  console.log(`${route.path}/${row.id}/edit`);
   await router.push(`${route.path}/${row.id}/edit`);
-  // const index = selected.value.findIndex((item) => item.id === row.id)
-  // if (index === -1) {
-  //   selected.value.push(row)
-  // } else {
-  //   selected.value.splice(index, 1)
-  // }
 }
 
 defineShortcuts({
@@ -57,15 +49,14 @@ defineShortcuts({
   }
 })
 
-await getItems()
-
 const getColumnSlotName = (column) => `${column.key}-header`
+
+const items = computed(() => result.value?.items ?? []);
 </script>
 
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-
       <UDashboardToolbar>
         <template #left>
           <USelectMenu
@@ -154,7 +145,7 @@ const getColumnSlotName = (column) => `${column.key}-header`
             icon="i-heroicons-trash"
             variant="ghost"
             size="xs"
-            @click.stop="deleteItem(row.id)"
+            @click.stop="deleteItem({id: row.id})"
           />
           <UButton
             icon="i-heroicons-document-duplicate"

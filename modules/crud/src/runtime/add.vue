@@ -1,14 +1,9 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: ["crud"]
-})
-
-const route = useRoute()
-const { addItem } = useItem()
 
 const currentModule = useState('currentModule');
 const breadCrumbs = useState('breadCrumbs');
 
+const { mutate: addItem, loading: loadAddItem } = useAddItem(currentModule);
 const state = reactive({})
 
 const form = ref()
@@ -23,7 +18,7 @@ onBeforeUnmount(() => {
 
 const save = async () => {
   console.log('Saving...:', {state});
-  await addItem(state);
+  await addItem({item: state});
 }
 
 const groupPanels = () => {
@@ -50,7 +45,7 @@ const addGroupFields = (key) => {
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #right>
-          <UButton :label="$t('ui.save')" trailing-icon="i-heroicons-document-check" color="green" @click="save()" />
+          <UButton :label="$t('ui.add')" trailing-icon="i-heroicons-document-check" color="green" @click="save()" :disabled="loadAddItem"/>
         </template>
       </UDashboardToolbar>
 
@@ -95,7 +90,7 @@ const addGroupFields = (key) => {
           </UAccordion>
 
           <div class="flex justify-center mt-6">
-            <UButton :label="$t('ui.save')" color="green" type="submit" />
+            <UButton :label="$t('ui.add')" color="green" type="submit" :disabled="loadAddItem" />
           </div>
         </UForm>
       </UDashboardPanelContent>

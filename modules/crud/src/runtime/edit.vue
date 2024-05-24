@@ -1,23 +1,25 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: ["crud"]
-})
-
 const route = useRoute()
-const { item, loading, getItem, patchItem } = useItem()
 
 const currentModule = useState('currentModule');
 const breadCrumbs = useState('breadCrumbs');
 
-const state = reactive({})
+const state = reactive({});
+const { result, loading: loadGetItem, variables, enabled } = useGetItem(currentModule);
+const { mutate: saveItem, loading: loadPatchItem } = usePatchItem(currentModule);
 
 const form = ref()
 
-onMounted(async () => {
-  await getItem(parseInt(route.params.id));
-  console.log({item})
-  Object.assign(state, item.value);
-  breadCrumbs.value.push({ label: item.value[currentModule.value.itemBreadcrumb]})
+watch(result,
+  value => {
+    breadCrumbs.value.push({ label: value.item[currentModule.value.itemBreadcrumb]})
+    Object.assign(state, value.item);
+  }
+)
+
+onMounted(() => {
+  variables.value.id = parseInt(route.params.id)
+  enabled.value = true;
 })
 
 onBeforeUnmount(() => {
@@ -28,12 +30,12 @@ const save = async (event) => {
   const patchDiff = {}
 
   for (const key of Object.keys(state)) {
-    if (state[key] !== item.value[key]) {
+    if (state[key] !== result.value.item[key]) {
       patchDiff[key] = state[key];
     }
   }
   console.log('Saving...:', {state, event, patchDiff});
-  await patchItem(parseInt(route.params.id), patchDiff);
+  await saveItem({id: parseInt(route.params.id), patch: patchDiff });
 }
 
 const groupPanels = () => {
@@ -56,15 +58,15 @@ const editGroupFields = (key) => {
 </script>
 
 <template>
-  <UDashboardPage v-if="!loading">
+  <UDashboardPage>
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #right>
-          <UButton :label="$t('ui.save')" trailing-icon="i-heroicons-document-check" color="green" @click="save()" />
+          <UButton :label="$t('ui.save')" trailing-icon="i-heroicons-document-check" color="green" @click="save()" :disabled="loadPatchItem" />
         </template>
       </UDashboardToolbar>
 
-      <UDashboardPanelContent>
+      <UDashboardPanelContent v-if="!loadGetItem">
         <UForm ref="form" :state="state" @submit="save">
           <UAccordion
             :items="groupPanels()"
@@ -105,7 +107,7 @@ const editGroupFields = (key) => {
           </UAccordion>
 
           <div class="flex justify-center mt-6">
-            <UButton :label="$t('ui.save')" color="green" type="submit" />
+            <UButton :label="$t('ui.save')" color="green" type="submit" :disabled="loadPatchItem" />
           </div>
         </UForm>
       </UDashboardPanelContent>
