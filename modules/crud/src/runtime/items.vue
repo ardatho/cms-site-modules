@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { User } from '~/types'
-
 const route = useRoute()
 const router = useRouter()
 const currentModule = useState('currentModule')
@@ -21,7 +19,7 @@ const searchFields = currentModule.value.fields
 
 const statuses = ['Offline', 'Online', 'Pending']
 const searchString = ref('')
-const selected = ref<User[]>([])
+const selected = ref<any[]>([])
 const selectedColumns = ref(defaultColumns)
 const selectedStatuses = ref([])
 const sort = ref({ column: 'id', direction: 'asc' as const })
@@ -64,62 +62,37 @@ const pageTotal = computed(() => result.value?.nItems.count || 0);
 const pageFrom = computed(() => (page.value - 1) * pageCount.value + 1)
 const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.value))
 
-  // offset: Int
-  // limit: Int
-  // sort: String
-  // order: String
-  // fields: String
-  // search: String
-  // filter: String
-  // options: String
+const displayFilters = ref(false);
+const filterValues = ref({});
+
 const queryInput = computed(() => {
   return {
     offset: (page.value - 1) * pageCount.value,
     limit: pageCount.value,
     search: searchString.value,
-    fields: searchFields.join(',')
+    fields: searchFields.join(','),
+    filter: Object.entries(filterValues.value).map(([key, value]) => `${key}:${value}`).join(',')
   }
 })
 
-variables.value.queryInput = queryInput
+variables.value.queryInput = queryInput;
 enabled.value = true;
+
+import FiltersForm from './components/Filters/Form.vue';
 </script>
 
 <template>
   <UDashboardToolbar>
     <template #left>
-      <USelectMenu
-        v-model="selectedStatuses"
-        icon="i-heroicons-check-circle"
-        placeholder="Status"
-        multiple
-        :options="defaultStatuses"
-        :ui-menu="{ option: { base: 'capitalize' } }"
+      <UButton
+        :label=" displayFilters ? $t('ui.hide_filters') : $t('ui.show_filters')"
+        leading-icon="i-heroicons-adjustments-horizontal"
+        color="gray"
+        @click="displayFilters = !displayFilters"
       />
-      <!-- <USelectMenu
-        v-model="selectedLocations"
-        icon="i-heroicons-map-pin"
-        placeholder="Location"
-        :options="defaultLocations"
-        multiple
-      /> -->
     </template>
 
     <template #right>
-      <UInput
-        ref="input"
-        v-model.lazy="searchString"
-        icon="i-heroicons-funnel"
-        autocomplete="off"
-        placeholder="Filter items..."
-        class="hidden lg:block"
-        @keydown.esc="$event.target.blur()"
-      >
-        <template #trailing>
-          <UKbd value="/" />
-        </template>
-      </UInput>
-
       <USelectMenu v-model="selectedColumns" icon="i-heroicons-adjustments-horizontal-solid" :options="defaultColumns" multiple class="hidden lg:block">
         <template #label>
           Display
@@ -127,6 +100,28 @@ enabled.value = true;
       </USelectMenu>
 
       <UButton :label="$t('ui.add') + ' ' + $t(currentModule.verbose_label_singular)" trailing-icon="i-heroicons-plus" color="gray" :to="`/${currentModule.id}/add`" />
+    </template>
+  </UDashboardToolbar>
+
+  <UDashboardToolbar v-if="displayFilters">
+    <template #left>
+      <UInput
+        ref="input"
+        v-model.lazy="searchString"
+        icon="i-heroicons-funnel"
+        autocomplete="off"
+        placeholder="Filter items..."
+        @keydown.esc="$event.target.blur()"
+      >
+        <template #trailing>
+          <UKbd value="/" />
+        </template>
+      </UInput>
+
+      <FiltersForm
+        v-model="filterValues"
+        :filters="currentModule.filters"
+      />
     </template>
   </UDashboardToolbar>
 

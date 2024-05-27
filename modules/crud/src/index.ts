@@ -1,4 +1,4 @@
-import { createResolver, defineNuxtModule, extendPages, addRouteMiddleware, addImportsDir, installModule } from '@nuxt/kit'
+import { createResolver, defineNuxtModule, extendPages, addRouteMiddleware, addImportsDir, addComponentsDir, installModule } from '@nuxt/kit'
 
 import type { NuxtPage } from 'nuxt/schema';
 

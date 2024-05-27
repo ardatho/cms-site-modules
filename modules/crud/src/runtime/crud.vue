@@ -48,6 +48,9 @@ onMounted(() => {
         </template>
         <template #left>
           <UBreadcrumb :links="breadCrumbs">
+            <template #divider>
+              <UIcon name="i-heroicons-chevron-right" />
+            </template>
             <template #default="{ link }">
               {{ $t(link.label) }}
             </template>

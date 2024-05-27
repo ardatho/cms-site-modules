@@ -63,7 +63,7 @@ const addGroupFields = (key) => {
 
             <template #trailing>
               <UIcon
-                name="i-heroicons-chevron-right-20-solid"
+                name="i-heroicons-chevron-right"
                 class="w-5 h-5 ms-auto transform transition-transform duration-200"
                 :class="[open && 'rotate-90']"
               />
