@@ -2,8 +2,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // skip middleware on server
   if (import.meta.server) return
 
-  const nuxtApp = useNuxtApp()
-  const token = await nuxtApp.$apolloHelpers.getToken()
+  const { verify } = useAuth();
+  const nuxtApp = useNuxtApp();
+  let token = await nuxtApp.$apolloHelpers.getToken()
   if (['login', 'signup', 'forgot-password'].includes(to?.name as string)) {
     if (token) {
       return navigateTo('/')
@@ -11,6 +12,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return
   }
 
+  token = await verify();
   if (!token) {
     return navigateTo('/login')
   }

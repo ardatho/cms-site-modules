@@ -3,25 +3,44 @@ import { createSharedComposable } from '@vueuse/core'
 import type { Nullable, User } from '~/types'
 
 const _useAuth = () => {
-  const nuxtApp = useNuxtApp()
-  const router = useRouter()
+  const nuxtApp = useNuxtApp();
+  const router = useRouter();
+  const toast = useToast();
   const me = ref<Nullable<User>>(null);
 
   const login = async (data: { username: string; password: string;}) => {
-
     try {
-        const res = await nuxtApp.$apollo.defaultClient.mutate({
-            mutation: gql`
-              mutation Mutation($username: String!, $password: String!) {
-                token: login(username: $username, password: $password)
-              }
-            `,
-            variables: data
-        });
-        await nuxtApp.$apolloHelpers.onLogin(res.data.token)
+      const res = await nuxtApp.$apollo.defaultClient.mutate({
+          mutation: gql`
+            mutation Login($username: String!, $password: String!) {
+              token: login(username: $username, password: $password)
+            }
+          `,
+          variables: data
+      });
+      await nuxtApp.$apolloHelpers.onLogin(res.data.token);
+      toast.add({ title: 'Login successfully'})
 
     } catch (e) {
         console.error(e)
+    }
+  }
+
+  const verify = async (): Promise<string | void> => {
+    try {
+      const res = await nuxtApp.$apollo.defaultClient.mutate({
+          mutation: gql`
+            mutation Verify {
+              token: verify
+            }
+          `,
+      });
+      await nuxtApp.$apolloHelpers.onLogin(res.data.token);
+      return res.data.token
+    } catch (err) {
+      toast.add({ title: 'Something went wrong', color: 'red'})
+      await router.push('/login');
+      return;
     }
   }
 
@@ -29,14 +48,14 @@ const _useAuth = () => {
     try {
       me.value = await getMe()
     } catch (err) {
-      await router.push('/login')
+      toast.add({ title: 'Something went wrong', color: 'red'});
     }
   }
 
   const getMe = async () => {
     const results = await nuxtApp.$apollo.defaultClient.query({
       query: gql`
-        query Query {
+        query Me {
           me {
             id
             firstname
@@ -56,6 +75,7 @@ const _useAuth = () => {
   return {
     login,
     logout,
+    verify,
     fetchCurrentUser,
     me,
   }
