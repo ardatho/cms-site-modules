@@ -1,14 +1,13 @@
 <script setup lang="ts">
 const route = useRoute()
-
 const currentModule = useState('currentModule');
 const breadCrumbs = useState('breadCrumbs');
 
-const state = reactive({});
 const { result, loading: loadGetItem, variables, enabled } = useGetItem(currentModule);
 const { mutate: saveItem, loading: loadPatchItem } = usePatchItem(currentModule);
 
-const form = ref()
+const state = reactive({});
+const formElement = ref()
 
 watch(result,
   value => {
@@ -55,6 +54,9 @@ const editGroupFields = (key) => {
     .filter(field => field.groupkey === key)
 }
 
+const statusField = currentModule.value.fields.find(field => field.type === 'status')
+const selectedStatusField = computed(() => statusField.items?.find(item => item.value === state.status));
+
 </script>
 
 <template>
@@ -62,12 +64,33 @@ const editGroupFields = (key) => {
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #right>
+          <USelectMenu
+            v-if="statusField"
+            v-model="state.status"
+            :options="statusField.items"
+            value-attribute="value"
+            option-attribute="text"
+            :color="selectedStatusField?.color"
+          >
+            <template #label>
+              <UIcon
+                name="i-heroicons-power"
+                :style="`color: ${selectedStatusField?.color}`"
+              />
+              <span class="truncate">{{ $t(selectedStatusField?.text || '') }}</span>
+            </template>
+
+            <template #option="{ option }">
+              <UIcon name="i-heroicons-power" :style="`color: ${option.color}`" />
+              <span>{{ $t(option.text) }}</span>
+            </template>
+          </USelectMenu>
           <UButton :label="$t('ui.save')" trailing-icon="i-heroicons-document-check" color="green" @click="save()" :disabled="loadPatchItem" />
         </template>
       </UDashboardToolbar>
 
       <UDashboardPanelContent v-if="!loadGetItem">
-        <UForm ref="form" :state="state" @submit="save">
+        <UForm ref="formElement" :state="state" @submit="save">
           <UAccordion
             :items="groupPanels()"
             :ui="{ wrapper: 'flex flex-col w-full' }"
@@ -95,14 +118,12 @@ const editGroupFields = (key) => {
             </template>
 
             <template #item="{ item }">
-              <UFormGroup
+              <InputField
                 v-for="field in editGroupFields(item.key)"
                 :key="field.key"
-                :label="$t(field.label)"
-                :name="field.key"
-              >
-                <UInput v-model="state[field.key]" />
-              </UFormGroup>
+                v-model="state[field.key]"
+                :config="field"
+              />
             </template>
           </UAccordion>
 

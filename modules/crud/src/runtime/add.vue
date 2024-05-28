@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import FormInput from './components/input/Field.vue';
 
 const currentModule = useState('currentModule');
 const breadCrumbs = useState('breadCrumbs');
-
 const { mutate: addItem, loading: loadAddItem } = useAddItem(currentModule);
-const state = reactive({})
 
+const state = reactive({})
 const form = ref()
 
 onMounted(async () => {
@@ -72,14 +72,12 @@ const addGroupFields = (key) => {
         </template>
 
         <template #item="{ item }">
-          <UFormGroup
+          <InputField
             v-for="field in addGroupFields(item.key)"
             :key="field.key"
-            :label="$t(field.label)"
-            :name="field.key"
-          >
-            <UInput v-model="state[field.key]" />
-          </UFormGroup>
+            v-model="state[field.key]"
+            :config="field"
+          />
         </template>
       </UAccordion>
 

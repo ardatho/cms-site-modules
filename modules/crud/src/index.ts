@@ -4,7 +4,13 @@ import type { NuxtPage } from 'nuxt/schema';
 
 export default defineNuxtModule({
   async setup(options, nuxt) {
-		const resolver = createResolver(import.meta.url)
+		const { resolve } = createResolver(import.meta.url)
+
+    // Transpile runtime
+    const runtimeDir = resolve('./runtime')
+    nuxt.options.build.transpile.push(runtimeDir)
+
+    nuxt.options.alias['#crud'] = runtimeDir
 
     // await installModule('nuxt-icon');
 
@@ -14,7 +20,7 @@ export default defineNuxtModule({
       customPages.push({
         name: type.id,
         path: `/${type.uri ? type.uri : type.id}`,
-        file: resolver.resolve('runtime/crud.vue'),
+        file: resolve(runtimeDir, 'crud.vue'),
         meta: {
           auth: true,
           type: type.id,
@@ -24,7 +30,7 @@ export default defineNuxtModule({
           {
             path: 'add',
             name: `${type.id}-addItem`,
-            file: resolver.resolve('runtime/add.vue'),
+            file: resolve(runtimeDir, 'add.vue'),
             meta: {
               auth: true,
               type: type.id,
@@ -34,7 +40,7 @@ export default defineNuxtModule({
           {
             path: '',
             name: `${type.id}-listing`,
-            file: resolver.resolve('runtime/items.vue'),
+            file: resolve(runtimeDir, 'items.vue'),
             meta: {
               auth: true,
               type: type.id,
@@ -44,7 +50,7 @@ export default defineNuxtModule({
           {
             path: ':id/edit',
             name: `${type.id}-editItem`,
-            file: resolver.resolve('runtime/edit.vue'),
+            file: resolve(runtimeDir, 'edit.vue'),
             meta: {
               auth: true,
               type: type.id,
@@ -55,12 +61,20 @@ export default defineNuxtModule({
       })
     }
 
-    addRouteMiddleware({
-      name: 'crud',
-      path: resolver.resolve('runtime/crudMiddleware.ts'),
+    addComponentsDir({
+      path: resolve(runtimeDir, 'components'),
+      // prefix: false,
+      pathPrefix: true,
+      global: true,
+      watch: false
     })
 
-    addImportsDir(resolver.resolve('runtime/composables'))
+    addRouteMiddleware({
+      name: 'crud',
+      path: resolve(runtimeDir, 'crudMiddleware.ts'),
+    })
+
+    addImportsDir(resolve(runtimeDir, 'composables'))
 
     extendPages((pages) => {
       for (const page of customPages) {

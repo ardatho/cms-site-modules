@@ -7,7 +7,7 @@ const { result, loading, enabled } = useFilter(props.config)
 
 const options = computed(() => result.value?.filters || []);
 
-const selectedValue = computed(() => options.value.find(option => option.value == filterValue.value)?.text || null)
+const selectedValue = computed(() => options.value.find(option => option.value == filterValue.value) || null)
 
 enabled.value = true;
 </script>
@@ -25,7 +25,7 @@ enabled.value = true;
       v-if="selectedValue"
       #label
     >
-      <span>{{ $t(selectedValue) }}</span>
+      <span>{{ $t(selectedValue.text) }}</span>
     </template>
     <template #option="{ option }">
       <span>{{ $t(option.text) }}</span>

@@ -65,6 +65,11 @@ const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.v
 const displayFilters = ref(false);
 const filterValues = ref({});
 
+const resetFilter = () => {
+  filterValues.value = {}
+  searchString.value = null
+}
+
 const queryInput = computed(() => {
   return {
     offset: (page.value - 1) * pageCount.value,
@@ -78,7 +83,6 @@ const queryInput = computed(() => {
 variables.value.queryInput = queryInput;
 enabled.value = true;
 
-import FiltersForm from './components/Filters/Form.vue';
 </script>
 
 <template>
@@ -118,9 +122,18 @@ import FiltersForm from './components/Filters/Form.vue';
         </template>
       </UInput>
 
-      <FiltersForm
+      <FilterForm
         v-model="filterValues"
         :filters="currentModule.filters"
+      />
+    </template>
+
+    <template #right>
+      <UButton
+        :label="$t('ui.reset')"
+        trailing-icon="i-heroicons-x-mark"
+        :disabled="Object.keys(filterValues).length === 0 && !searchString"
+        @click="resetFilter()"
       />
     </template>
   </UDashboardToolbar>
