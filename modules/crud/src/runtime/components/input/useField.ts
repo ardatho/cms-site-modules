@@ -44,6 +44,7 @@ const fieldComponentTypes = {
       mode: 'dateTime'
     }
   }),
+  relations: () => ({ component: 'input-relations' }),
   // htmltexteditor: ({ field }) => ({
   //   component: HtmlTextEditorField,
   //   props: {
@@ -57,16 +58,6 @@ const fieldComponentTypes = {
   // btngroup: () => ({ component: BtnGroupField }),
   // spacing: () => ({ component: SpacingField }),
   // children: ({ typeName, field }) => ({
-  //   component: RelationsField,
-  //   props: {
-  //     // NOTE: The field itself shouldn't have access to its raw config.
-  //     //   We're making an exception here because type relations requires
-  //     //   API related information.
-  //     typeName,
-  //     field,
-  //   },
-  // }),
-  // relations: ({ typeName, field }) => ({
   //   component: RelationsField,
   //   props: {
   //     // NOTE: The field itself shouldn't have access to its raw config.

@@ -1,5 +1,45 @@
 import { createSharedComposable } from '@vueuse/core'
 
+const queryField = (field) => {
+  console.log({field})
+  if (field.type === 'custom' && field.static === true) {
+    return '';
+  }
+  if (field.select_id !== undefined) {
+    return field.select_id;
+  }
+  // Handle field to fetch one or more attributes in listing
+  if (
+    (['combobox', 'select', 'media'].includes(field.type)) &&
+    field.related !== undefined
+  ) {
+    // Attributes listed in config
+    if (
+      field.listing_attribute !== undefined &&
+      field.listing_attributes !== undefined
+    ) {
+      return `${field.key} { ${field.listing_attributes} }`;
+    }
+
+    // No attributes listed in config
+    const selection = [];
+
+    if (field.itemValue) {
+      selection.push(field.itemValue);
+    }
+
+    if (field.itemText && field.itemText !== field.itemValue) {
+      selection.push(field.itemText);
+    }
+
+    if (selection.length) {
+      return `${field.key} { ${selection.join(',')} }`;
+    }
+  }
+
+  return field.key;
+}
+
 const _useCrudQuery = () => {
   const upperKeyName = (key: string) => key.charAt(0).toUpperCase() + key.slice(1);
 
@@ -8,7 +48,7 @@ const _useCrudQuery = () => {
     return gql`
       query ${upperKeyName(currentModule.id)}($queryInput: QueryInput) {
         items: ${currentModule.id}(queryInput: $queryInput) {
-          ${fields.map(field => field.key).join(' ')}
+          ${fields.map(field => queryField(field)).join(' ')}
         }
         nItems: n${currentModule.id}(queryInput: $queryInput) {
           count
@@ -24,7 +64,7 @@ const _useCrudQuery = () => {
     return gql`
       query ${upperKeyName(currentModule.idSingular)}($id: Int!) {
         item: ${currentModule.idSingular}(id: $id) {
-          ${fields.map(field => field.key).join(' ')}
+          ${fields.map(field => field.related ?? field.key).join(' ')}
         }
       }
     `

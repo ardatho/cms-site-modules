@@ -63,10 +63,9 @@ export default defineNuxtModule({
 
     addComponentsDir({
       path: resolve(runtimeDir, 'components'),
-      // prefix: false,
       pathPrefix: true,
       global: true,
-      watch: false
+      watch: true
     })
 
     addRouteMiddleware({
