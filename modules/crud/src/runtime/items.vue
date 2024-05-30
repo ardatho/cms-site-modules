@@ -21,25 +21,10 @@ const statuses = ['Offline', 'Online', 'Pending']
 const searchString = ref('')
 const selected = ref<any[]>([])
 const selectedColumns = ref(defaultColumns)
-const selectedStatuses = ref([])
 const sort = ref({ column: 'id', direction: 'asc' as const })
 const input = ref<{ input: HTMLInputElement }>()
 
 const columns = computed(() => defaultColumns.filter((column) => selectedColumns.value.includes(column)))
-
-// const defaultLocations = items.value.reduce((acc, user) => {
-//   if (!acc.includes(user.location)) {
-//     acc.push(user.location)
-//   }
-//   return acc
-// }, [] as string[])
-
-const defaultStatuses = result?.value?.items.reduce((acc, user) => {
-  if (!acc.includes(user.status)) {
-    acc.push(user.status)
-  }
-  return acc
-}, [] as string[])
 
 const onSelect = async (row: any) => {
   await router.push(`${route.path}/${row.id}/edit`);
@@ -157,14 +142,6 @@ enabled.value = true;
         {{ $t(column.label) }}
       </template>
 
-      <template #name-data="{ row }">
-        <div class="flex items-center gap-3">
-          <UAvatar v-bind="row.avatar" :alt="row.name" size="xs" />
-
-          <span class="text-gray-900 dark:text-white font-medium">{{ row.name }}</span>
-        </div>
-      </template>
-
       <template #created_at-data="{ row }">
         {{ row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }}
       </template>
@@ -185,11 +162,11 @@ enabled.value = true;
           size="xs"
           @click.stop="deleteItem({id: row.id})"
         />
-        <UButton
+        <!-- <UButton
           icon="i-heroicons-document-duplicate"
           variant="ghost"
           size="xs"
-        />
+        /> -->
       </template>
     </UTable>
   </div>

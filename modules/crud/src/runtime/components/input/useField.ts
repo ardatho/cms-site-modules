@@ -44,7 +44,7 @@ const fieldComponentTypes = {
       mode: 'dateTime'
     }
   }),
-  relations: () => ({ component: 'input-relations' }),
+  relations: () => ({ component: 'input-table' }),
   // htmltexteditor: ({ field }) => ({
   //   component: HtmlTextEditorField,
   //   props: {
