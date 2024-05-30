@@ -36,6 +36,7 @@ const fieldComponentTypes = {
   status: () => ({ component: 'input-select' }),
   radio: () => ({ component: 'input-radio' }),
   textarea: () => ({ component: 'input-text-area' }),
+  htmltexteditor: () => ({ component: 'input-htmltexteditor' }),
   boolean: () => ({ component: 'input-boolean' }),
   date: () => ({ component: 'input-date' }),
   datetime: () => ({
