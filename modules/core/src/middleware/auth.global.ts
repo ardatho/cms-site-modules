@@ -7,14 +7,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   let token = await nuxtApp.$apolloHelpers.getToken()
   if (['login', 'signup', 'forgot-password'].includes(to?.name as string)) {
     if (token) {
-      return navigateTo('/')
+      return navigateTo({name: 'index'});
     }
     return
   }
 
-  token = await verify();
-  if (!token) {
-    return navigateTo('/login')
+  try {
+    token = await verify();
+    if (!token) {
+      throw Error('Token missing')
+    }
+  } catch (e) {
+    await navigateTo({ name: 'login' })
   }
   if (import.meta.client && nuxtApp.isHydrating && nuxtApp.payload.serverRendered) return
 })

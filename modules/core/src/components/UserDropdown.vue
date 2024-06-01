@@ -46,7 +46,6 @@ const items = computed(() => [
     label: t('global.switchlang'),
     icon: 'i-heroicons-language',
     click: async () => {
-      console.log('Switchlang:', t('global.acronymLang'))
       await setLocale(t('global.acronymLang'));
     }
   }], [{
