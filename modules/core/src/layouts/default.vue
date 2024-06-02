@@ -27,6 +27,24 @@ const links = reactive([{
     shortcuts: ['G', 'I']
   }
 }, {
+  id: 'pages',
+  label: 'page.pages',
+  icon: 'i-heroicons-document-text',
+  to: '/pages',
+  children: [{
+    label: 'page.pages',
+    to: '/pages',
+    exact: true
+  }, {
+    label: 'customclass.customclasses',
+    to: '/customclasses',
+    exact: true
+  }],
+  tooltip: {
+    text: 'Users',
+    shortcuts: ['G', 'U']
+  }
+}, {
   id: 'users',
   label: 'user.users',
   icon: 'i-heroicons-user-group',
